@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if [ "$1" == "grammar" ]; then
+	java -jar antlr4.jar *.g4
+fi

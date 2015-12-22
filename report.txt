@@ -1,0 +1,467 @@
+#Language Engineering - COMS22201 
+##Course work 1 Report
+
+###Student Name: Zaiyang Li
+###Username: ZL14917
+
+(For best viewing experiences, this report is best view in a markdown editor)
+(Goto https://stackedit.io/editor and copy-paste all of the text into the editor window to view the formatted text)
+
+#Section 1: Compiler Overview
+
+While language is a simple language yet it's features are common denominator of most programming languages programmers use. It is useful for writing basic programs that runs from command line. The language supports INTEGER arithmetic, BOOLEAN operation, basic control flow statements, ie. WHILE loop and decision making statement, IF.
+
+For this course work I successfully implemented all the features specified in the course work specification. In addition, I focused on creating a robust compiler that handle most of the human errors such as assigning values to incompatible variables (eg. a:=1+true). It compiles to the correct assembly code and running the test programs give correct results. However, I did not get enough time toward the end to implement extra features such as live variable analysis. 
+
+#Section 2: How to Use
+
+In my submission I have included a self-contained .jar package that can be run from the 
+terminal with the following command:
+
+    $ java -jar whilec [-tree] <input-file> [-out <output-file>] 
+
+You can specify 2 optional flags when executing the compiler
+     
+     -tree
+     -out
+
+-tree : output the syntax tree to the stdout
+-out : specify the output file name
+
+if "-out" flag is not specified, the compiler will write assembly output to a file with the same name as the input file, but with ".ass" extension.
+
+**Note**: In order to run the *whilec.jar* file, make sure *antlr4.jar* is in the same folder.
+
+#Section 3: A tour of the output
+
+Make sure you have the latest Java JDK installed, the minimum required version is 1.8.  Here is the directory structure of the src folder.
+
+    build
+	    |----whilec.jar
+		    ...(other java class files)
+	example                       //test0.w - test7.w and its compiled outputs
+		|----test0.w
+			...
+		|----test7.w
+	antlr                         // Antlr4 grammar used to generate the lexer and parser
+		|----While.g4
+		|----WhileLexerRules.g4
+	src
+		|-Code                    //Classes used to implement code generation
+		|-Common                  //Utilities like formatting the syntax tree
+		|-Evaluator               //Evaluate constant expressions, not implemented
+		|-IR                      //Intermediate representation in three address code
+		|-Model                   //Abstract type model
+		|-Parser                  //Antlr 4 generated lexer and parser files
+		|-Semantics               //Semantics analysis
+		|-Tree                    //My own AST
+		|----whilec.java          //Compiler executable main
+		|----antlr4.jar           //antlr4 runtime library
+
+Note: Make sure antlr4.jar is in the src root
+
+#Section 4: How to build the compiler from source
+
+To build the compiler from source, first open up terminal and cd to the `src` folder. Execute the following command s
+
+	$ mkdir build
+	$ javac -d build -cp antlr4.jar ./**/*.java whilec.java
+
+This should compile the source code into a .class files which are placed in the `build` folder inside `src` folder.
+To run the compiler, first copy antlr4.jar then execute the java runtime
+
+	$ cp antlr4.jar ./build/antlr4.jar
+	$ cd build
+	$ java -cp .;./antlr4.jar whilec [-tree] <inputfile> [-out <outputfile>]
+
+
+#Section 5: Test results and Sample output listing
+
+The whilec compiler is able to produce correct assembly for all of the tests. Here are the sample output
+
+##Test1.w
+	
+	$ assmule test3.ass
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---example\test1.ass ASSEMBLY BEGINS
+	---example\test1.ass ASSEMBLY ENDS
+	---example\test1.ass EXECUTION BEGINS
+	10023
+	10023
+	76
+	76
+	---example\test1.ass EXECUTION ENDS
+	STATISTICS:
+	  18 instructions generated
+	  8 registers used
+	  18 instructions executed
+
+##Test2.w
+	output from running assmule on fileexample\test2.w
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---example\test2.ass ASSEMBLY BEGINS
+	---example\test2.ass ASSEMBLY ENDS
+	---example\test2.ass EXECUTION BEGINS
+	7
+	-5
+	28
+	-91
+	70
+	---example\test2.ass EXECUTION ENDS
+	STATISTICS:
+	  45 instructions generated
+	  34 registers used
+	  45 instructions executed
+
+##test3.w
+
+	$ assmule test3.ass
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---test3.ass ASSEMBLY BEGINS
+	---test3.ass ASSEMBLY ENDS
+	---test3.ass EXECUTION BEGINS
+	Enter a number: 3
+	Enter a number: 5
+	First is 3; second is 5
+	---test3.ass EXECUTION ENDS
+	STATISTICS:
+	  13 instructions generated
+	  5 registers used
+	  13 instructions executed
+
+##test4.w
+
+	output from running assmule on fileexample\test4.w
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---example\test4.ass ASSEMBLY BEGINS
+	---example\test4.ass ASSEMBLY ENDS
+	---example\test4.ass EXECUTION BEGINS
+	13
+	5
+	
+	78bce
+	---example\test4.ass EXECUTION ENDS
+	STATISTICS:
+	  183 instructions generated
+	  58 registers used
+	  128 instructions executed
+
+##test5.w
+	
+	$ assmule.exe test5.ass -j
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---test5.ass ASSEMBLY BEGINS
+	---test5.ass ASSEMBLY ENDS
+	---test5.ass EXECUTION BEGINS
+	1
+	WARNING: Disabled backward jump in   12: JMP 3
+	3
+	WARNING: Disabled backward jump in   38: JMP 29
+	7
+	WARNING: Disabled backward jump in   66: JMP 57
+	b
+	WARNING: Disabled backward jump in  103: JMP 95
+	c
+	WARNING: Disabled backward jump in  124: JMP 116
+	d
+	WARNING: Disabled backward jump in  136: JMP 128
+	WARNING: Disabled backward jump in  138: JMP 107
+	---test5.ass EXECUTION ENDS
+	STATISTICS:
+	  141 instructions generated
+	  51 registers used
+	  110 instructions executed	
+
+##test6.w
+
+	$ assmule.exe test6.ass
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---test6.ass ASSEMBLY BEGINS
+	---test6.ass ASSEMBLY ENDS
+	---test6.ass EXECUTION BEGINS
+	truefalse01100010000
+	---test6.ass EXECUTION ENDS
+	STATISTICS:
+	  64 instructions generated
+	  40 registers used
+	  64 instructions executed
+
+##test7.w
+
+	$ assmule.exe test7.ass
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---test7.ass ASSEMBLY BEGINS
+	---test7.ass ASSEMBLY ENDS
+	---test7.ass EXECUTION BEGINS
+	Factorial calculator
+	Enter number: 12
+	Factorial of 12 is 479001600
+	
+	Exponential calculator
+	Enter base: 3
+	Enter exponent: 10
+	3 raised to the power of 10 is 59049
+	---test7.ass EXECUTION ENDS
+	STATISTICS:
+	  80 instructions generated
+	  31 registers used
+	  342 instructions executed
+
+##bulleye.w (extra)
+
+	$ assmule.exe bulleye.ass
+	ASS/MULE - ASSembler/eMUlator for Language Engineering - v2.7 - Steve Gregory
+	---bulleye.ass ASSEMBLY BEGINS
+	---bulleye.ass ASSEMBLY ENDS
+	---bulleye.ass EXECUTION BEGINS
+	Recommended parameters: size=28, rings=10
+	Size: 16
+	Number of rings: 8
+	                        7 7 7 7 7 7 7 7 7
+	                    7 7 7 7 7 7 7 7 7 7 7 7 7
+	                7 7 7 7 7 7 6 6 6 6 6 7 7 7 7 7 7
+	            7 7 7 7 7 6 6 6 6 6 6 6 6 6 6 6 7 7 7 7 7
+	          7 7 7 7 6 6 6 6 6 6 5 5 5 6 6 6 6 6 6 7 7 7 7
+	        7 7 7 6 6 6 6 5 5 5 5 5 5 5 5 5 5 5 6 6 6 6 7 7 7
+	      7 7 7 6 6 6 6 5 5 5 5 5 5 5 5 5 5 5 5 5 6 6 6 6 7 7 7
+	      7 7 6 6 6 5 5 5 5 4 4 4 4 4 4 4 4 4 5 5 5 5 6 6 6 7 7
+	    7 7 7 6 6 5 5 5 5 4 4 4 4 4 4 4 4 4 4 4 5 5 5 5 6 6 7 7 7
+	    7 7 6 6 6 5 5 4 4 4 4 3 3 3 3 3 3 3 4 4 4 4 5 5 6 6 6 7 7
+	  7 7 7 6 6 5 5 5 4 4 4 3 3 3 3 3 3 3 3 3 4 4 4 5 5 5 6 6 7 7 7
+	  7 7 6 6 5 5 5 4 4 4 3 3 3 2 2 2 2 2 3 3 3 4 4 4 5 5 5 6 6 7 7
+	7 7 7 6 6 5 5 4 4 4 3 3 3 2 2 2 2 2 2 2 3 3 3 4 4 4 5 5 6 6 7 7 7
+	7 7 7 6 6 5 5 4 4 3 3 3 2 2 2 1 1 1 2 2 2 3 3 3 4 4 5 5 6 6 7 7 7
+	7 7 6 6 6 5 5 4 4 3 3 2 2 2 1 1 1 1 1 2 2 2 3 3 4 4 5 5 6 6 6 7 7
+	7 7 6 6 5 5 5 4 4 3 3 2 2 1 1 1 0 1 1 1 2 2 3 3 4 4 5 5 5 6 6 7 7
+	7 7 6 6 5 5 5 4 4 3 3 2 2 1 1 0 0 0 1 1 2 2 3 3 4 4 5 5 5 6 6 7 7
+	7 7 6 6 5 5 5 4 4 3 3 2 2 1 1 1 0 1 1 1 2 2 3 3 4 4 5 5 5 6 6 7 7
+	7 7 6 6 6 5 5 4 4 3 3 2 2 2 1 1 1 1 1 2 2 2 3 3 4 4 5 5 6 6 6 7 7
+	7 7 7 6 6 5 5 4 4 3 3 3 2 2 2 1 1 1 2 2 2 3 3 3 4 4 5 5 6 6 7 7 7
+	7 7 7 6 6 5 5 4 4 4 3 3 3 2 2 2 2 2 2 2 3 3 3 4 4 4 5 5 6 6 7 7 7
+	  7 7 6 6 5 5 5 4 4 4 3 3 3 2 2 2 2 2 3 3 3 4 4 4 5 5 5 6 6 7 7
+	  7 7 7 6 6 5 5 5 4 4 4 3 3 3 3 3 3 3 3 3 4 4 4 5 5 5 6 6 7 7 7
+	    7 7 6 6 6 5 5 4 4 4 4 3 3 3 3 3 3 3 4 4 4 4 5 5 6 6 6 7 7
+	    7 7 7 6 6 5 5 5 5 4 4 4 4 4 4 4 4 4 4 4 5 5 5 5 6 6 7 7 7
+	      7 7 6 6 6 5 5 5 5 4 4 4 4 4 4 4 4 4 5 5 5 5 6 6 6 7 7
+	      7 7 7 6 6 6 6 5 5 5 5 5 5 5 5 5 5 5 5 5 6 6 6 6 7 7 7
+	        7 7 7 6 6 6 6 5 5 5 5 5 5 5 5 5 5 5 6 6 6 6 7 7 7
+	          7 7 7 7 6 6 6 6 6 6 5 5 5 6 6 6 6 6 6 7 7 7 7
+	            7 7 7 7 7 6 6 6 6 6 6 6 6 6 6 6 7 7 7 7 7
+	                7 7 7 7 7 7 6 6 6 6 6 7 7 7 7 7 7
+	                    7 7 7 7 7 7 7 7 7 7 7 7 7
+	                        7 7 7 7 7 7 7 7 7
+	---bulleye.ass EXECUTION ENDS
+	STATISTICS:
+	  106 instructions generated
+	  65 registers used
+	  319265 instructions executed
+
+#Section 6: Supported Features
+
+The basic features my compiler supports are:
+
+ - Integer arithmetic `+ - * /`
+ - assign float values to variable and write float values.
+ - `write` and `read` statement
+ - `writeln` statement
+ - `skip` statement
+ - `if` statement
+ - `while` statement
+ - boolean type is supported natively.
+ - `= != < > <= <=` six types of comparison operators supported
+ - logical operations: `& | !`
+ - arrays type: `a:=array(10); a[1]:=5`
+ - string type: `a:='hello world'; b:=a `
+
+A rudimentary static typing system is implemented. The system can check for incompatible variable assignments and operations. A variable's type is determined when it is defined and assigned value for the first type. Like most statically typed languages, It cannot change over the life time of the program. Dynamic type checking would allow more freedom. However it is massively complicated to implement as a type lookup table would be needed, furthermore we would need to store type information along with each in-memory object such as variable, string. We would need to perform run-time type checking, assembly code for deciding if two types are compatible would also need to be generated.
+
+A variable must be declared and initialized before it can be used. Attempting to use a variable before assigning a value to it will cause a compiling error. 
+
+String output instruction`WRS` can only take an integer literal as operand, this means `a:='hello world'` is valid but `write(a)` is not. Fortunately errors such as this is caught by the compiler and reported. 
+
+Boolean is represent by 0's (false) and 1's (true). The compiler will convert all assignment such as `a:=true` into `a:=1`. Both comparison operations and logical operations produce boolean type expressions. 
+Assignment of boolean values into integer (or string, array types) variable is not allowed and compiler will report such error, e.g. `a:=1; a:=true`. Because of the aforementioned limitation of `WRS` instruction, boolean values cannot be printed as "true" or "false", rather, their numerical equivalent is displayed. 
+
+Array types can hold any other type as its element. Array elements are homogeneously typed, i.e., an array must be all integers or floats. They are 0-indexed and accessed by square brackets: `a:=array(10); a[4]:=4`. The first line initializes variable `a` to be an array variable. The second line sets 5th element of `a` to be 4. No array index bounds checking is performed.
+
+Parentheses `()`in while language be used to group expressions together to be evaluated together. It is also used to denote a compound statement, it is synonymous to curly braces `{}` in C or Java. My implementation of the while language recognizes variables defined in parentheses as being in a lower scope then variables defined outside it. However since there is no explicit variable declaration syntax in While language, if an identifier appears in both inner scope and outer scope, the compiler cannot make decision about the correct behavior. Initially, I designed the compiler to create new variables in local, but after reasoning about it, I found that this behavior is not always the user's intention.
+
+	a:=5;
+	(
+		a:=6; 
+		{ are we declaring 'a' in local scope or assigning to 'a' in the outer scope ?}
+		write(6)
+	)
+
+This means that local variable shadowing in C or Java cannot be corrected implemented here, after some thought I dropped this feature. Variables in sibling scopes will not have the same namespace, consider this example:
+
+	( a:= 5; write (a) ) { scope 1: a is defined here }
+	( b:= a; write (b) ) { scope 2: a is not in scope }
+
+This code produces the following output:
+
+	Error compiling 
+	2:6 Error, variable with name a cannot be found in scope chain
+	2:6 Error, expression 'a' type cannot be determined, possibly contains uninitialized variable or incompatible types
+	2:16 Error, variable with name b is uninitialized
+
+Function support was originally designed but this feature proved to be too much work. ASSMULE interpreter also lacks support for stack, as a result this feature is not implemented in the code generation phase. The parsing and semantics analysis phases handle function definition, but no useful assembly code will be produced.
+
+	function multiply(a:=0, b:=0)
+	(
+	    return a*b
+	);
+	
+	c:=multiply(1,5)
+Function definition has the following syntax:
+		 
+	function identifier ( parameter list ) ( function body )
+	
+Notice we need to give each paramter a default value. This is because While language lacks keywords for variable types, but the compiler needs to be able to infer the types of the function parameters at compile time. This is like a hack, but allows the compiler to infer the types of the parameter and the return type.
+
+#Section 7: Compiler Anatomy and Error handling
+
+The compiler is made to be robust because we cannot assume the quality of the input source code. There are two types of errors a user can make
+
+ - syntax errors
+ - semantics errors
+
+Since syntax errors are caught by the lexer and parser, which were generated by ANTLR 4, I focused largely on handling semantics errors. Below is a flow chart summarizing various stages of compilation.
+
+		    ANTLR Lexer 
+			     ||
+			     v
+		    ANTLR Parer
+				 ||
+				 v
+		Syntax Tree Validation
+				 ||
+				 v
+		variable type and scope resolution
+				 ||
+			     v
+		Transformation to three address code
+				 ||
+				 v
+		Virtual Code Generation
+				||
+				v
+	    Register allocation Optimization (not implemented)
+				||
+				v
+		  Output Assembly
+		      	   
+The first two stages are handle by the ANTLR which feeds the tree validator with a parse tree. Parse tree need to be validated because some production rules may allow too many different structures to be generated and in some cases we want to restrict our valid parse to a subset of that. This pass removes most errors to do with syntax. 
+
+The next stage is the static variable type inference and scoping. Operands of arithmetic and boolean operations are verified, ie `a:= 1 + true` should not be allowed.  Typing errors is caught at this state. Scope resolution and type verification are done in the same pass because they are complementary. If a variable is not defined, that it makes no sense to verify its type. Parentheses `()` indicates entering and exiting a sub namespace, and they can be nested to arbitrary depth. Variables in sibling scopes and their children cannot see each other.`(a:=1);(write(a))`generates compilation error.
+
+Up until this point, all the errors in the program source being compiled will have been found out and reported to the user. If no errors are found, the compiler will proceed to the next stage.
+
+The next stage transforms syntax tree to three address code. Expressions such as `r:=(a+b)*5` is translated to `t1 :=a+b; t2:=t1*5; r:=t2`. I choose three address code as the intermediate representation because there is a one-to-one mapping between most of the assembly instructions and the transformed statement. Also we can readily apply optimization algorithms to it because the program structure is now linear. While loops and if -then-else statements are transformed to jumps and conditional jumps statements at this stage to prepare to code generation.
+
+Virtual code generation is called virtual because the assembly code is stored in an buffer in memory. It is written to disk after the whole program is compiled. Register allocation and instruction optimization may be performed at this point. I did not implement register allocation because of time constraint but made the conscious design decision to allow this to be added. The instruction buffer is written to disk to produce the output assembly.
+
+#Section: Project Summary and Evaluation
+
+Executing `$ git diff --stat 4b825dc642cb6eb9a060e54bf8d69288fbee4904` on my repository to count the number of lines, I found that my code base is a staggering 8448 lines. Out of 8000 lines, about 3000 lines were lexer and parser files generated by ANTLR 4. This means that I have written over 5000 lines of java. This roughly equals to 50 hours of work. A clear distinction on the number of hours spent working the required features as opposed to optional features cannot be drawn since I finished each stage before working on the next one. I would say about 30 hours were spent on extra features. Time was a too short to finish all the features I would like to have to turn While language into a useful programming langauge. I also found that the abstract machine instruction were too limited in some place. Overall I had fun in architect the compiler and learnt so much in the process. 
+
+	$ git diff --stat 4b825dc642cb6eb9a060e54bf8d69288fbee4904
+	 Code/AbstractMachine.java                    |  544 ++++++++
+	 Code/CodeGen.java                            |   75 ++
+	 Code/Instruction.java                        |   62 +
+	 Code/Label.java                              |   28 +
+	 Code/Literal.java                            |   29 +
+	 Code/Memory.java                             |  257 ++++
+	 Code/OpCode.java                             |   65 +
+	 Code/Operand.java                            |    8 +
+	 Code/Register.java                           |   23 +
+	 Code/RegisterAllocator.java                  |   31 +
+	 Code/StackFrame.java                         |    7 +
+	 Common/BracketPrettifier.java                |   51 +
+	 Common/OptionParser.java                     |   51 +
+	 Evaluator/ExpressionEvaluator.java           |   21 +
+	 IR/AssemblyStatement.java                    |   10 +
+	 IR/ExpressionLinearizer.java                 |  213 ++++
+	 IR/ThreeAdressTransformer.java               |  229 ++++
+	 Model/AbstractType.java                      |    8 +
+	 Model/DataType.java                          |   16 +
+	 Model/Kind.java                              |    8 +
+	 Model/Node.java                              |    8 +
+	 Model/Operator.java                          |   38 +
+	 Model/ValueType.java                         |    8 +
+	 Parser/SyntaxErrorHandler.java               |   35 +
+	 Parser/While.tokens                          |   76 ++
+	 Parser/WhileBaseListener.java                |  375 ++++++
+	 Parser/WhileBaseVisitor.java                 |  210 +++
+	 Parser/WhileLexer.java                       |  202 +++
+	 Parser/WhileLexer.tokens                     |   76 ++
+	 Parser/WhileListener.java                    |  308 +++++
+	 Parser/WhileParser.java                      | 1757 ++++++++++++++++++++
+	 Parser/WhileVisitor.java                     |  190 +++
+	 Semantics/AlreadyExistsInScopeException.java |    7 +
+	 Semantics/ArrayElement.java                  |   28 +
+	 Semantics/Element.java                       |   65 +
+	 Semantics/FunctionElement.java               |   19 +
+	 Semantics/IncompatibleTypeException.java     |   10 +
+	 Semantics/InvalidTypeException.java          |   13 +
+	 Semantics/LocalScope.java                    |    9 +
+	 Semantics/Scope.java                         |  129 ++
+	 Semantics/ScopeResolver.java                 |  390 ++++++
+	 Semantics/SemanticsAnalyzer.java             |   59 +
+	 Semantics/SemanticsException.java            |   33 +
+	 Semantics/SymbolKind.java                    |    8 +
+	 Semantics/ThreeAddressTypeAnalyzer.java      |  206 +++
+	 Semantics/TreeAnalyzer.java                  |  312 +++++
+	 Semantics/TypeChecker.java                   |  165 +++
+	 Semantics/TypeRules.java                     |   63 +
+	 Tree/ArgumentList.java                       |   19 +
+	 Tree/ArrayAccess.java                        |   35 +
+	 Tree/ArrayDefinition.java                    |   36 +
+	 Tree/AssignmentExpression.java               |   29 +
+	 Tree/BinaryOperation.java                    |   12 +
+	 Tree/BlockStatement.java                     |   56 +
+	 Tree/BooleanBinaryExpression.java            |   35 +
+	 Tree/BooleanExpression.java                  |   12 +
+	 Tree/BooleanLiteral.java                     |   36 +
+	 Tree/BooleanUnaryExpression.java             |   35 +
+	 Tree/BottomUpTreeWalker.java                 |   47 +
+	 Tree/CompilationUnit.java                    |   29 +
+	 Tree/ConditionGotoStatement.java             |   38 +
+	 Tree/Expression.java                         |   42 +
+	 Tree/ExpressionList.java                     |   23 +
+	 Tree/ExpressionStatement.java                |   19 +
+	 Tree/FloatLiteral.java                       |   24 +
+	 Tree/FlowControlStatement.java               |   24 +
+	 Tree/FunctionCall.java                       |   31 +
+	 Tree/FunctionDefinition.java                 |   80 ++
+	 Tree/FuntionCallResolver.java                |    7 +
+	 Tree/GotoStatement.java                      |   23 +
+	 Tree/Identifiable.java                       |   11 +
+	 Tree/Identifier.java                         |   36 +
+	 Tree/IfStatement.java                        |   36 +
+	 Tree/IntegerLiteral.java                     |   22 +
+	 Tree/NumericalBinaryExpression.java          |   32 +
+	 Tree/NumericalExpression.java                |   10 +
+	 Tree/NumericalLiteral.java                   |   14 +
+	 Tree/NumericalUnaryExpression.java           |   25 +
+	 Tree/ParameterList.java                      |   28 +
+	 Tree/ProgramEndStatement.java                |   10 +
+	 Tree/ProgramStartStatement.java              |   10 +
+	 Tree/ReadStatement.java                      |   20 +
+	 Tree/RelationExpression.java                 |   32 +
+	 Tree/ReturnStatement.java                    |   26 +
+	 Tree/SkipStatement.java                      |   10 +
+	 Tree/Statement.java                          |   17 +
+	 Tree/StatementList.java                      |   27 +
+	 Tree/StringLiteral.java                      |   19 +
+	 Tree/SyntaxTreeBuilder.java                  |  513 ++++++++
+	 Tree/SyntaxTreeNode.java                     |   19 +
+	 Tree/TypeWrapper.java                        |    7 +
+	 Tree/UnaryOperation.java                     |   11 +
+	 Tree/Variable.java                           |   73 ++
+	 Tree/VariableAccess.java                     |   14 +
+	 Tree/WhileStatement.java                     |   23 +
+	 Tree/WriteLineStatement.java                 |   10 +
+	 Tree/WriteStatement.java                     |   23 +
+	 whilec.java                                  |  143 +++
+	 98 files changed, 8448 insertions(+)

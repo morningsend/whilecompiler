@@ -1,0 +1,23 @@
+init:	xor r0, r0, r0 ;initialize the R0 register, also need to initialize the stack pointer, base pointer, stack register, etc
+		addi r8, 0, 1023 ;set stack pointer to be at 256th byte and work downwards.
+		addi r9, r8, 0 ;set base pointer to stack pointer.
+		iaddr r10, main ;store the pointer to the main routine
+		jump r10 
+
+main:	addi r1, r1, 5
+		addi r2, r2, 8
+		store r8, r2, 0
+		addi r8, r8, 4
+		store r8, r1, 0
+		addi r9, r8, 
+		addi r10, r10, 4
+		iaddr r10, add_2;
+		jump r10;
+		wr r1;
+end:	halt;
+
+
+add_2:	load r7, r8, 0 ;calling convention: parameters popped onto stack right to left, 
+		addi r8, r8, -4 
+		load r6, r8, 0
+		addi 
