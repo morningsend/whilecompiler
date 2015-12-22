@@ -295,7 +295,7 @@ Parentheses `()`in while language be used to group expressions together to be ev
 
 This means that local variable shadowing in C or Java cannot be corrected implemented here, after some thought I dropped this feature. Variables in sibling scopes will not have the same namespace, consider this example:
 
-	( a:= 5; write (a) ) { scope 1: a is defined here }
+	( a:= 5; write (a) );{ scope 1: a is defined here }
 	( b:= a; write (b) ) { scope 2: a is not in scope }
 
 This code produces the following output:
